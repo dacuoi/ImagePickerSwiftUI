@@ -1,39 +1,6 @@
 import SwiftUI
 import Photos
 
-public typealias ImageMetaData = (image: UIImage?, metaData: [String: Any]?)
-
-public enum MetadataImageKeys: String {
-    /// Image URL
-    case url
-    /// Date when the asset was created
-    case creationDate
-    /// Date when the asset was last modified
-    case modificationDate
-    /// Location information (latitude and longitude)
-    case location
-    /// Width of the asset in pixels
-    case pixelWidth
-    /// Height of the asset in pixels
-    case pixelHeight
-    /// Type of the media (image, video, etc.)
-    case mediaType
-    /// Subtypes of the media (e.g., live photo, panorama)
-    case mediaSubtypes
-    /// Duration of the media (only applicable for videos)
-    case duration
-    /// Identifier for burst photo
-    case burstIdentifier
-    /// Types of burst selection
-    case burstSelectionTypes
-    /// Whether the asset is marked as favorite
-    case isFavorite
-    /// Whether the asset is hidden
-    case isHidden
-    /// Source type of the asset (e.g., user library, iTunes synced)
-    case sourceType
-}
-
 @available(iOS 13.0, *)
 public struct ImagePickerSwiftUI: UIViewControllerRepresentable {
     @Environment(\.presentationMode) private var presentationMode
@@ -63,7 +30,7 @@ public struct ImagePickerSwiftUI: UIViewControllerRepresentable {
         imagePicker.allowsEditing = allowsEditing
         imagePicker.sourceType = sourceType
         imagePicker.delegate = context.coordinator
-        
+        //
         return imagePicker
     }
     //
@@ -82,76 +49,6 @@ public struct ImagePickerSwiftUI: UIViewControllerRepresentable {
             self.parent = parent
         }
         //
-        func fetchPhotoMetadata(asset: PHAsset) -> [String: Any] {
-            var metadata: [String: Any] = [:]
-            // Ngày tạo
-            if let creationDate = asset.creationDate {
-                metadata[MetadataImageKeys.creationDate.rawValue] = creationDate
-            }
-            // Ngày sửa đổi
-            if let modificationDate = asset.modificationDate {
-                metadata[MetadataImageKeys.modificationDate.rawValue] = modificationDate
-            }
-            // Vị trí
-            if let location = asset.location {
-                metadata[MetadataImageKeys.location.rawValue] = ["latitude": location.coordinate.latitude, "longitude": location.coordinate.longitude]
-            }
-            // Kích thước
-            metadata[MetadataImageKeys.pixelWidth.rawValue] = asset.pixelWidth
-            metadata[MetadataImageKeys.pixelHeight.rawValue] = asset.pixelHeight
-            // Loại phương tiện
-            switch asset.mediaType {
-            case .image:
-                metadata[MetadataImageKeys.mediaType.rawValue] = "Image"
-            case .video:
-                metadata[MetadataImageKeys.mediaType.rawValue] = "Video"
-            case .audio:
-                metadata[MetadataImageKeys.mediaType.rawValue] = "Audio"
-            default:
-                metadata[MetadataImageKeys.mediaType.rawValue] = "Unknown"
-            }
-            // Kiểu phụ của phương tiện
-            var mediaSubtypes: [String] = []
-            if asset.mediaSubtypes.contains(.photoLive) {
-                mediaSubtypes.append("Live Photo")
-            }
-            if asset.mediaSubtypes.contains(.photoPanorama) {
-                mediaSubtypes.append("Panorama")
-            }
-            if asset.mediaSubtypes.contains(.photoHDR) {
-                mediaSubtypes.append("HDR")
-            }
-            if asset.mediaSubtypes.contains(.photoScreenshot) {
-                mediaSubtypes.append("Screenshot")
-            }
-            metadata[MetadataImageKeys.mediaSubtypes.rawValue] = mediaSubtypes
-            // Thời lượng video (nếu là video)
-            if asset.mediaType == .video {
-                metadata[MetadataImageKeys.duration.rawValue] = asset.duration
-            }
-            // Ảnh burst
-            if let burstIdentifier = asset.burstIdentifier {
-                metadata[MetadataImageKeys.burstIdentifier.rawValue] = burstIdentifier
-                metadata[MetadataImageKeys.burstSelectionTypes.rawValue] = asset.burstSelectionTypes
-            }
-            // Đánh dấu yêu thích
-            metadata[MetadataImageKeys.isFavorite.rawValue] = asset.isFavorite
-            // Bị ẩn
-            metadata[MetadataImageKeys.isHidden.rawValue] = asset.isHidden
-            // Loại nguồn
-            switch asset.sourceType {
-            case .typeUserLibrary:
-                metadata[MetadataImageKeys.sourceType.rawValue] = "User Library"
-            case .typeCloudShared:
-                metadata[MetadataImageKeys.sourceType.rawValue] = "Cloud Shared"
-            case .typeiTunesSynced:
-                metadata[MetadataImageKeys.sourceType.rawValue] = "iTunes Synced"
-            default:
-                metadata[MetadataImageKeys.sourceType.rawValue] = "Unknown"
-            }
-            return metadata
-        }
-        //
         public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             var imageData: UIImage?
             //
@@ -168,7 +65,7 @@ public struct ImagePickerSwiftUI: UIViewControllerRepresentable {
                 metaDataInfo[MetadataImageKeys.url.rawValue] = imageURL
             }
             if let asset = info[.phAsset] as? PHAsset {
-                let metaDataPhoto = fetchPhotoMetadata(asset: asset)
+                let metaDataPhoto = asset.fetchPhotoMetadata()
                 metaDataInfo.merge(metaDataPhoto) { (current, _) in current }
             } else {
                 print("No PHAsset found in info.")
