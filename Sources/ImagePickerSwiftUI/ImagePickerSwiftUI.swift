@@ -1,9 +1,9 @@
 import SwiftUI
 import Photos
 
-typealias ImageMetaData = (image: UIImage?, metaData: [String: Any]?)
+public typealias ImageMetaData = (image: UIImage?, metaData: [String: Any]?)
 
-enum MetadataImageKeys: String {
+public enum MetadataImageKeys: String {
     /// Image URL
     case url
     /// Date when the asset was created
@@ -44,7 +44,7 @@ public struct ImagePickerSwiftUI: UIViewControllerRepresentable {
     var key: UIImagePickerController.InfoKey
     var croppingToSquare: Bool = false
     //
-    init(
+    public init(
         selectedImage: Binding<ImageMetaData?>,
         sourceType: UIImagePickerController.SourceType,
         allowsEditing: Bool,

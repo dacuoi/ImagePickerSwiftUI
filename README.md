@@ -9,7 +9,7 @@ import ImagePickerSwiftUI
 ```
 
 ```.swift
-   @State var selectedImage: UIImage?
+   @State var selectedImage: ImageMetaData?
    @State var showPicker: Bool = false
 ```
 
